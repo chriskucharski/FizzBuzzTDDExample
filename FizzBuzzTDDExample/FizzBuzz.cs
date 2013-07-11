@@ -6,6 +6,13 @@ using System.Threading.Tasks;
 
 namespace FizzBuzzTDDExample
 {
+    /// <summary>
+    /// Write a program that prints the numbers from 1 to 100.
+    /// But for multiples of three print “Fizz” instead of the number.
+    /// And for the multiples of five print “Buzz” instead of the number.
+    /// And for numbers which are multiples of both three and five print “FizzBuzz” instead of the number.
+    /// </summary>
+    /// 
     public class FizzBuzz
     {
         public bool IsMultipleOfThree(int number)
