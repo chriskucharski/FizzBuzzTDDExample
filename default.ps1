@@ -1,14 +1,18 @@
 # properties that is used by the script
 properties {
+	$projectName = "FizzBuzzTDDExample"
+	$testProjectName = "FizzBuzzTests"
+	$projectVersion = "0.0.0.0"
 	$config = 'debug'
     $environment = 'debug'
     $dateLabel = ([DateTime]::Now.ToString("yyyy-MM-dd_HH-mm-ss"))
     $baseDir = resolve-path .\
-    $sourceDir = "$baseDir\FizzBuzzTDDExample\"
-	$testBaseDir = "$baseDir\FizzBuzzTests\"
+    $sourceDir = "$baseDir\$projectName\"
+	$testBaseDir = "$baseDir\$testProjectName\"
 	$nUnitPath = "C:\Program Files (x86)\NUnit 2.6.2\bin\nunit-console.exe"
+	$7zipExec = "$baseDir\lib\7zip\7za.exe"
     $deployBaseDir = "$baseDir\Deploy"
-    $deployPkgDir = "$deployBaseDir\Package\"
+    $deployPkgDir = "$deployBaseDir\Package"
     $backupDir = "$deployBaseDir\Backup"
     $toolsDir = "$sourceDir\"
 }
@@ -56,11 +60,11 @@ task test -depends compile {
 # copying the deployment package
 task copyPkg -depends test {
 	# robocopy has some issue with a trailing slash in the path (or it's by design, don't know), lets remove that slash
-	$deployPath = Remove-LastChar "$deployPkgDir"
-	# copying the required files for the deloy package to the deploy folder created at setup
+	# $deployPath = Remove-LastChar "$deployPkgDir"
 	
+	# copying the required files for the deloy package to the deploy folder created at setup
 	$tempSourcePath = $sourceDir.Substring(3)
-	$tempDeployPath = $deployPath.Substring(3)
+	$tempDeployPath = $deployPkgDir.Substring(3)
 	robocopy /"$tempSourcePath/" /"$tempDeployPath/" /MIR /XD obj bundler Configurations Properties /XF *.bundle *.coffee *.less *.pdb *.cs *.csproj *.csproj.user *.sln .gitignore README.txt packages.config
 	
 	# checking so that last exit code is ok else break the build (robocopy returning greater that 1 if fail)
@@ -70,8 +74,20 @@ task copyPkg -depends test {
 	}
 }
 
+# create a compressed package of the application for deployment
+task PackApplication -depends copyPkg {
+	#Copy-Item "$baseDir\etc\deploymentScripts\*" "$deployPkgDir"
+	
+	$versionStamp = $projectVersion -replace "\.", "_"
+	Exec { &$7zipExec a "-x!*.zip" "-x!*.dat" "$deployPkgDir\FizzBuzzTDDExample_$versionStamp.zip" "$deployPkgDir\*" }
+}
+
+task RemoveRawDeployFiles -depends PackApplication{
+	Remove-Item $deployPkgDir\* -recurse -exclude *.zip
+}
+
 # merging and doing config transformations
-task mergeConfig -depends copyPkg {
+task mergeConfig -depends RemoveRawDeployFiles {
 
 }
 

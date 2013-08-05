@@ -14,7 +14,6 @@ namespace FizzBuzzTDDExample
     /// And for numbers which are multiples of both three and five print “FizzBuzz” instead of the number.
     /// </summary>
   
-
     [TestFixture]
     public class FizzBuzzTests
     {
