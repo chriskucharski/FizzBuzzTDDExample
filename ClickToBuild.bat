@@ -1,2 +1,2 @@
-Powershell .\Build.ps1
+Powershell -Ex Unrestricted .\Build.ps1
 pause
